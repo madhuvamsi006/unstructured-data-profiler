@@ -226,9 +226,40 @@ input[type="text"]::placeholder { color: var(--ink-muted); font-family: var(--sa
 }
 .btn-ghost:hover { background: var(--surface-sunk); color: var(--ink); }
 
-/* upload button — becomes primary on Cloud Run */
-.upload-btn { cursor: pointer; }
-.upload-primary { width: 100%; justify-content: center; font-size: 13px; padding: 10px 16px; }
+/* drag-and-drop upload zone */
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px 16px;
+  border: 2px dashed var(--grid);
+  border-radius: var(--radius);
+  background: var(--surface-sunk);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: center;
+  margin-bottom: 12px;
+  min-height: 130px;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.drop-icon { color: var(--ink-muted); transition: color 0.15s; }
+.drop-zone:hover .drop-icon, .drop-zone.drag-over .drop-icon { color: var(--accent); }
+.drop-title { font-weight: 600; font-size: 13px; color: var(--ink); }
+.drop-sub { font-size: 12px; color: var(--ink-muted); }
+.drop-link { color: var(--accent); text-decoration: underline; cursor: pointer; }
+.drop-status { font-size: 12px; color: var(--ink-2); min-height: 16px; margin-top: 2px; }
+.drop-zone.uploading { border-color: var(--accent); }
+.drop-zone.done { border-color: var(--good); background: color-mix(in srgb, var(--good) 8%, var(--surface-sunk)); }
+.drop-zone.done .drop-icon { color: var(--good); }
+
+/* gcs / advanced source section toggle */
+.source-toggle { font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: underline; margin-bottom: 8px; display: inline-block; }
+
 @keyframes upload-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(42,120,214,0.6); }
   70%  { box-shadow: 0 0 0 8px rgba(42,120,214,0); }

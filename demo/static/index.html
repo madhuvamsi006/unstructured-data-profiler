@@ -30,18 +30,28 @@
 
   <aside class="rail">
     <div class="rail-section">
-      <span class="label">Estate source</span>
-      <div class="field">
-        <input type="text" id="source" placeholder="gs://bucket/prefix or a folder path" autocomplete="off" spellcheck="false">
-        <div class="presets" id="presets"></div>
+
+      <!-- ── Upload drop-zone (shown on Cloud Run; hidden locally) ── -->
+      <div class="drop-zone" id="drop-zone" hidden>
+        <input type="file" id="upload-input" style="display:none"
+          accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.png,.jpg,.jpeg,.zip,.csv,.pptx,.ppt,.md,.json,.xml,.html">
+        <svg class="drop-icon" width="32" height="32" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M12 15V3M7 8l5-5 5 5"/>
+          <path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/>
+        </svg>
+        <div class="drop-title" id="drop-title">Drop a file here to scan</div>
+        <div class="drop-sub" id="drop-sub">or <span class="drop-link" id="drop-browse">click to browse</span></div>
+        <div class="drop-status" id="drop-status"></div>
       </div>
-      <div class="field" style="margin-top:8px">
-        <label class="btn btn-ghost upload-btn" id="upload-label" for="upload-input" title="Upload a local file to scan on the server">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" style="vertical-align:-2px;margin-right:5px"><path d="M8 11V3M4 6l4-4 4 4"/><path d="M2 13h12"/></svg>
-          <span id="upload-label-text">Upload file</span>
-        </label>
-        <input type="file" id="upload-input" style="display:none" accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.png,.jpg,.jpeg,.zip,.csv,.pptx,.ppt,.md,.json,.xml,.html">
-        <span id="upload-status" class="hint" style="margin-left:8px;display:none"></span>
+
+      <!-- ── Path / GCS source (always shown locally; secondary on Cloud Run) ── -->
+      <div id="source-section">
+        <span class="label" id="source-label">Estate source</span>
+        <div class="field">
+          <input type="text" id="source" placeholder="gs://bucket/prefix or a folder path" autocomplete="off" spellcheck="false">
+          <div class="presets" id="presets"></div>
+        </div>
       </div>
 
       <div class="row-2" style="margin-top:16px">
@@ -100,7 +110,7 @@
         </p>
         <ol class="steps-inline">
           <li><b>Inventory &amp; format health.</b> Every file identified by its magic bytes, not its extension — so renamed, encrypted, corrupt and legacy files surface immediately.</li>
-          <li><b>Deduplication.</b> Exact copies by content hash, and the “FINAL v3 (copy)” near-duplicates by text similarity, with the storage that reclaims.</li>
+          <li><b>Deduplication.</b> Exact copies by content hash, and the "FINAL v3 (copy)" near-duplicates by text similarity, with the storage that reclaims.</li>
           <li><b>Sensitivity.</b> PII, PHI, financial and credential detection, checksum-validated, with optional Cloud DLP escalation on the riskiest files.</li>
           <li><b>RAG readiness.</b> A score and a disposition per file, plus the Document AI processor each one would need.</li>
         </ol>

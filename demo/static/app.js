@@ -87,21 +87,44 @@
 
     var hosted = health.environment === "cloud_run";
     if (hosted) {
-      // No file shares in a container: point people at the bundled sample,
-      // a bucket, or the upload button — not local paths.
-      $("source").placeholder = "gs://bucket/prefix  —  or upload a file ↓";
+      // Show the drop-zone as the primary action; collapse the text source field.
+      var dz = $("drop-zone");
+      if (dz) {
+        dz.hidden = false;
+        // Wire the initial browse link
+        var browse = $("drop-browse");
+        if (browse) browse.addEventListener("click", function (e) {
+          e.stopPropagation();
+          if (uploadInput) uploadInput.click();
+        });
+      }
+
+      // Collapse the source text section to a small "or scan gs:// / sample" toggle
+      var srcSection = $("source-section");
+      if (srcSection) {
+        srcSection.hidden = true;
+        var toggle = document.createElement("div");
+        toggle.className = "source-toggle";
+        toggle.textContent = "Or scan a gs:// bucket / sample estate…";
+        toggle.addEventListener("click", function () {
+          srcSection.hidden = !srcSection.hidden;
+          $("run-scan").hidden = srcSection.hidden;
+          toggle.textContent = srcSection.hidden
+            ? "Or scan a gs:// bucket / sample estate…"
+            : "Hide path input";
+        });
+        dz.insertAdjacentElement("afterend", toggle);
+      }
+
+      $("source").placeholder = "gs://bucket/prefix";
       $("dlp-hint").insertAdjacentHTML(
         "afterend",
-        '<p class="hint">Hosted on Cloud Run' +
+        ‘<p class="hint">Hosted on Cloud Run’ +
           (health.revision ? " (<code>" + health.revision + "</code>)" : "") +
-          ". Scan <code>gs://</code> buckets, the bundled sample, or <strong>upload a local file</strong> using the button below. Local paths from your machine don’t exist here.</p>"
+          ". Drop or upload a local file, or scan a <code>gs://</code> bucket. Run history resets when the instance recycles.</p>"
       );
-      // Promote the upload label to look like a primary action on Cloud Run
-      var uploadLbl = $("upload-label");
-      if (uploadLbl) {
-        uploadLbl.classList.remove("btn-ghost");
-        uploadLbl.classList.add("btn-primary", "upload-primary");
-      }
+      // Hide Run scan — upload auto-starts the scan
+      $("run-scan").hidden = true;
     }
 
     var allowed = health.allowed_sources || [];
@@ -595,12 +618,19 @@
     input.style.height = Math.min(input.scrollHeight, 160) + "px";
   });
 
-  // ---------------- file upload ----------------
-  function uploadFile(file) {
-    var labelText = $("upload-label-text");
-    var status = $("upload-status");
-    labelText.textContent = "Uploading…";
-    status.style.display = "none";
+  // ---------------- file upload + drag-and-drop ----------------
+  var dropZone = $("drop-zone");
+  var uploadInput = $("upload-input");
+
+  function setDropState(cls, title, sub, status) {
+    dropZone.className = "drop-zone" + (cls ? " " + cls : "");
+    if (title != null) $("drop-title").textContent = title;
+    if (sub != null)   $("drop-sub").innerHTML = sub;
+    if (status != null) $("drop-status").textContent = status;
+  }
+
+  function uploadAndScan(file) {
+    setDropState("uploading", "Uploading…", "", file.name);
     var form = new FormData();
     form.append("file", file);
     fetch("/api/upload", { method: "POST", body: form })
@@ -609,24 +639,55 @@
         return r.json();
       })
       .then(function (data) {
+        setDropState("done",
+          data.filename,
+          "Drop another file or <span class=\"drop-link\" id=\"drop-browse\">browse</span>",
+          bytes(data.size_bytes) + " — starting scan…"
+        );
+        // Re-wire the new drop-browse span
+        var nb = $("drop-browse");
+        if (nb) nb.addEventListener("click", function () { uploadInput.click(); });
+        // Set source and auto-start the scan
         $("source").value = data.path;
-        labelText.textContent = "Upload file";
-        status.textContent = data.filename + " (" + bytes(data.size_bytes) + ") — ready to scan";
-        status.style.display = "inline";
+        setTimeout(runScan, 300);
       })
       .catch(function (err) {
-        labelText.textContent = "Upload file";
-        status.textContent = "Upload failed: " + (err.message || err);
-        status.style.display = "inline";
+        setDropState("",
+          "Drop a file here to scan",
+          "or <span class=\"drop-link\" id=\"drop-browse\">click to browse</span>",
+          "Upload failed: " + (err.message || err)
+        );
+        var nb = $("drop-browse");
+        if (nb) nb.addEventListener("click", function () { uploadInput.click(); });
       });
   }
 
-  var uploadInput = $("upload-input");
-  if (uploadInput) {
+  if (dropZone && uploadInput) {
+    // Click anywhere in the zone to open file picker
+    dropZone.addEventListener("click", function (e) {
+      if (e.target.classList.contains("drop-link") || e.target === uploadInput) return;
+      uploadInput.click();
+    });
+
     uploadInput.addEventListener("change", function () {
       var file = uploadInput.files && uploadInput.files[0];
-      if (file) uploadFile(file);
+      if (file) uploadAndScan(file);
       uploadInput.value = "";
+    });
+
+    // Drag-and-drop
+    dropZone.addEventListener("dragover", function (e) {
+      e.preventDefault();
+      dropZone.classList.add("drag-over");
+    });
+    dropZone.addEventListener("dragleave", function () {
+      dropZone.classList.remove("drag-over");
+    });
+    dropZone.addEventListener("drop", function (e) {
+      e.preventDefault();
+      dropZone.classList.remove("drag-over");
+      var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) uploadAndScan(file);
     });
   }
 
