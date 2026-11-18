@@ -87,15 +87,21 @@
 
     var hosted = health.environment === "cloud_run";
     if (hosted) {
-      // No file shares in a container: point people at the bundled sample
-      // or a bucket, rather than at paths that cannot exist here.
-      $("source").placeholder = "gs://bucket/prefix";
+      // No file shares in a container: point people at the bundled sample,
+      // a bucket, or the upload button — not local paths.
+      $("source").placeholder = "gs://bucket/prefix  —  or upload a file ↓";
       $("dlp-hint").insertAdjacentHTML(
         "afterend",
         '<p class="hint">Hosted on Cloud Run' +
           (health.revision ? " (<code>" + health.revision + "</code>)" : "") +
-          ". Scan <code>gs://</code> buckets or the bundled sample; local paths exist only on your own machine. Run history resets when the instance recycles.</p>"
+          ". Scan <code>gs://</code> buckets, the bundled sample, or <strong>upload a local file</strong> using the button below. Local paths from your machine don’t exist here.</p>"
       );
+      // Promote the upload label to look like a primary action on Cloud Run
+      var uploadLbl = $("upload-label");
+      if (uploadLbl) {
+        uploadLbl.classList.remove("btn-ghost");
+        uploadLbl.classList.add("btn-primary", "upload-primary");
+      }
     }
 
     var allowed = health.allowed_sources || [];
@@ -245,10 +251,40 @@
     log.scrollTop = log.scrollHeight;
   }
 
+  function isWindowsPath(s) {
+    // Matches C:\... D:/... \\server\share  and quoted variants
+    var stripped = s.replace(/^["']+|["']+$/g, "").trim();
+    return /^[A-Za-z]:[/\\]/.test(stripped) || /^\\\\/.test(stripped);
+  }
+
   function runScan() {
     if (state.scanning) return;
     var source = $("source").value.trim();
     if (!source) { $("source").focus(); return; }
+
+    // Catch local Windows paths before they hit the server — they never exist
+    // on Cloud Run; the user must upload the file first.
+    if (isWindowsPath(source)) {
+      var log = $("scanlog");
+      $("overview-idle").hidden = true;
+      log.hidden = false;
+      log.innerHTML = "";
+      selectTab("overview");
+      logLine("$ scan " + source, "muted");
+      logLine("crawling\u2026");
+      logLine(
+        "\u2717 That looks like a path on your local machine — it does not exist on the server.\n" +
+        "  \u25b6 Use the \u201cUpload file\u201d button to upload your file first, then click Run scan.",
+        "err"
+      );
+      // Flash the upload button to draw attention
+      var lbl = $("upload-label");
+      if (lbl) {
+        lbl.classList.add("upload-pulse");
+        setTimeout(function () { lbl.classList.remove("upload-pulse"); }, 2000);
+      }
+      return;
+    }
 
     state.scanning = true;
     $("run-scan").disabled = true;

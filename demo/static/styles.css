@@ -226,6 +226,16 @@ input[type="text"]::placeholder { color: var(--ink-muted); font-family: var(--sa
 }
 .btn-ghost:hover { background: var(--surface-sunk); color: var(--ink); }
 
+/* upload button — becomes primary on Cloud Run */
+.upload-btn { cursor: pointer; }
+.upload-primary { width: 100%; justify-content: center; font-size: 13px; padding: 10px 16px; }
+@keyframes upload-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(42,120,214,0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(42,120,214,0); }
+  100% { box-shadow: 0 0 0 0 rgba(42,120,214,0); }
+}
+.upload-pulse { animation: upload-pulse 0.6s ease 2; }
+
 /* run history */
 .runs { display: flex; flex-direction: column; gap: 6px; }
 .run {
