@@ -614,10 +614,11 @@
   var uploadInput = $("upload-input");
 
   function setDropState(cls, title, sub, status) {
-    dropZone.className = "drop-zone" + (cls ? " " + cls : "");
-    if (title != null) $("drop-title").textContent = title;
-    if (sub != null)   $("drop-sub").innerHTML = sub;
-    if (status != null) $("drop-status").textContent = status;
+    if (dropZone) dropZone.className = "drop-zone" + (cls ? " " + cls : "");
+    var t = $("drop-title"), s = $("drop-sub"), st = $("drop-status");
+    if (title != null && t) t.textContent = title;
+    if (sub != null && s)   s.innerHTML = sub;
+    if (status != null && st) st.textContent = status;
   }
 
   function uploadAndScan(file) {
