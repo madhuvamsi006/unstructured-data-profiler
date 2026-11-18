@@ -87,25 +87,26 @@
 
     var hosted = health.environment === "cloud_run";
     if (hosted) {
-      // Show the drop-zone as the primary action; collapse the text source field.
-      var dz = $("drop-zone");
-      if (dz) dz.hidden = false;
-
-      // Collapse the source text section to a small "or scan gs:// / sample" toggle
+      // Drop-zone and source-section visibility are handled by CSS (.cloud-run class
+      // is injected server-side). JS only manages the toggle link.
       var srcSection = $("source-section");
-      if (srcSection) {
-        srcSection.hidden = true;
+      var runBtn = $("run-scan");
+      var dropZoneEl = $("drop-zone");
+
+      // Add a toggle link below the drop-zone for GCS / advanced paths
+      if (dropZoneEl && srcSection) {
         var toggle = document.createElement("div");
         toggle.className = "source-toggle";
         toggle.textContent = "Or scan a gs:// bucket / sample estate…";
         toggle.addEventListener("click", function () {
-          srcSection.hidden = !srcSection.hidden;
-          $("run-scan").hidden = srcSection.hidden;
-          toggle.textContent = srcSection.hidden
+          var showing = srcSection.style.display !== "none";
+          srcSection.style.display = showing ? "none" : "";
+          if (runBtn) runBtn.style.display = showing ? "none" : "";
+          toggle.textContent = showing
             ? "Or scan a gs:// bucket / sample estate…"
             : "Hide path input";
         });
-        dz.insertAdjacentElement("afterend", toggle);
+        dropZoneEl.insertAdjacentElement("afterend", toggle);
       }
 
       $("source").placeholder = "gs://bucket/prefix";
@@ -113,10 +114,8 @@
         "afterend",
         ‘<p class="hint">Hosted on Cloud Run’ +
           (health.revision ? " (<code>" + health.revision + "</code>)" : "") +
-          ". Drop or upload a local file, or scan a <code>gs://</code> bucket. Run history resets when the instance recycles.</p>"
+          ". Drop a file or click the zone above to upload and scan it.</p>"
       );
-      // Hide Run scan — upload auto-starts the scan
-      $("run-scan").hidden = true;
     }
 
     var allowed = health.allowed_sources || [];

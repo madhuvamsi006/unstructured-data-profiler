@@ -435,6 +435,7 @@ async def chat(request: ChatRequest):
 
 
 _BUILD_ID = str(int(time.time()))  # fixed for the lifetime of this process
+_ON_CLOUD_RUN = bool(os.environ.get("K_SERVICE"))
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -443,6 +444,10 @@ def index() -> HTMLResponse:
     # Cache-bust JS and CSS on every deploy so browsers never serve stale assets.
     html = html.replace('src="/static/app.js"', f'src="/static/app.js?v={_BUILD_ID}"')
     html = html.replace('href="/static/styles.css"', f'href="/static/styles.css?v={_BUILD_ID}"')
+    # Inject a server-side class so the upload zone is visible from first paint,
+    # without waiting for the health-check API round-trip in JavaScript.
+    if _ON_CLOUD_RUN:
+        html = html.replace('<html lang="en">', '<html lang="en" class="cloud-run">')
     return HTMLResponse(html, headers={"Cache-Control": "no-store"})
 
 

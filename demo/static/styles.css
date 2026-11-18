@@ -226,6 +226,14 @@ input[type="text"]::placeholder { color: var(--ink-muted); font-family: var(--sa
 }
 .btn-ghost:hover { background: var(--surface-sunk); color: var(--ink); }
 
+/* Show/hide upload zone vs path field based on server-injected class.
+   On Cloud Run, server sets class="cloud-run" on <html> from first paint —
+   no JS round-trip needed. JS still updates the toggle dynamically. */
+.drop-zone { display: none; }
+html.cloud-run .drop-zone { display: flex; }
+html.cloud-run #source-section { display: none; }
+html.cloud-run #run-scan { display: none; }
+
 /* drag-and-drop upload zone */
 .drop-zone {
   display: flex;
