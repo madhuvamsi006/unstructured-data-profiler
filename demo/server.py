@@ -434,9 +434,16 @@ async def chat(request: ChatRequest):
 # ---------------------------------------------------------------------------
 
 
+_BUILD_ID = str(int(time.time()))  # fixed for the lifetime of this process
+
+
 @app.get("/", response_class=HTMLResponse)
 def index() -> HTMLResponse:
-    return HTMLResponse((STATIC_DIR / "index.html").read_text(encoding="utf-8"))
+    html = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    # Cache-bust JS and CSS on every deploy so browsers never serve stale assets.
+    html = html.replace('src="/static/app.js"', f'src="/static/app.js?v={_BUILD_ID}"')
+    html = html.replace('href="/static/styles.css"', f'href="/static/styles.css?v={_BUILD_ID}"')
+    return HTMLResponse(html, headers={"Cache-Control": "no-store"})
 
 
 def main() -> None:

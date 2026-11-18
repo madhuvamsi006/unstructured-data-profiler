@@ -89,15 +89,7 @@
     if (hosted) {
       // Show the drop-zone as the primary action; collapse the text source field.
       var dz = $("drop-zone");
-      if (dz) {
-        dz.hidden = false;
-        // Wire the initial browse link
-        var browse = $("drop-browse");
-        if (browse) browse.addEventListener("click", function (e) {
-          e.stopPropagation();
-          if (uploadInput) uploadInput.click();
-        });
-      }
+      if (dz) dz.hidden = false;
 
       // Collapse the source text section to a small "or scan gs:// / sample" toggle
       var srcSection = $("source-section");
@@ -663,25 +655,22 @@
   }
 
   if (dropZone && uploadInput) {
-    // Click anywhere in the zone to open file picker
-    dropZone.addEventListener("click", function (e) {
-      if (e.target.classList.contains("drop-link") || e.target === uploadInput) return;
-      uploadInput.click();
-    });
-
+    // The <label for="upload-input"> inside the drop-zone handles all clicks —
+    // no JS .click() needed. Just handle the change event and drag-and-drop.
     uploadInput.addEventListener("change", function () {
       var file = uploadInput.files && uploadInput.files[0];
       if (file) uploadAndScan(file);
       uploadInput.value = "";
     });
 
-    // Drag-and-drop
+    // Drag-and-drop (bypasses the label)
     dropZone.addEventListener("dragover", function (e) {
       e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
       dropZone.classList.add("drag-over");
     });
-    dropZone.addEventListener("dragleave", function () {
-      dropZone.classList.remove("drag-over");
+    ["dragleave", "dragend"].forEach(function (evt) {
+      dropZone.addEventListener(evt, function () { dropZone.classList.remove("drag-over"); });
     });
     dropZone.addEventListener("drop", function (e) {
       e.preventDefault();

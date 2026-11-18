@@ -33,15 +33,20 @@
 
       <!-- ── Upload drop-zone (shown on Cloud Run; hidden locally) ── -->
       <div class="drop-zone" id="drop-zone" hidden>
-        <input type="file" id="upload-input" style="display:none"
+        <!-- label wraps the visual content so clicking anywhere opens the picker -->
+        <label for="upload-input" class="drop-label">
+          <svg class="drop-icon" width="32" height="32" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M12 15V3M7 8l5-5 5 5"/>
+            <path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/>
+          </svg>
+          <div class="drop-title" id="drop-title">Drop a file here to scan</div>
+          <div class="drop-sub">PDF, DOCX, XLSX, TXT and more — click to browse</div>
+        </label>
+        <!-- visually hidden but reachable by the label -->
+        <input type="file" id="upload-input"
+          style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;top:0;left:0"
           accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.png,.jpg,.jpeg,.zip,.csv,.pptx,.ppt,.md,.json,.xml,.html">
-        <svg class="drop-icon" width="32" height="32" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <path d="M12 15V3M7 8l5-5 5 5"/>
-          <path d="M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4"/>
-        </svg>
-        <div class="drop-title" id="drop-title">Drop a file here to scan</div>
-        <div class="drop-sub" id="drop-sub">or <span class="drop-link" id="drop-browse">click to browse</span></div>
         <div class="drop-status" id="drop-status"></div>
       </div>
 
