@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unstructured Data Profiler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">Unstructured Data Profiler</span>
+    <span class="brand-sub">Estate triage for migration &amp; RAG readiness</span>
+  </div>
+  <div class="topbar-spacer"></div>
+  <span class="pill" id="model-pill"><span class="dot"></span><code id="model-name">…</code></span>
+  <span class="pill" id="auth-pill"><span class="dot"></span><span id="auth-text">checking…</span></span>
+  <button class="icon-btn" id="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
+    <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</header>
+
+<div class="shell">
+
+  <aside class="rail">
+    <div class="rail-section">
+      <span class="label">Estate source</span>
+      <div class="field">
+        <input type="text" id="source" placeholder="gs://bucket/prefix or a folder path" autocomplete="off" spellcheck="false">
+        <div class="presets" id="presets"></div>
+      </div>
+      <div class="field" style="margin-top:8px">
+        <label class="btn btn-ghost upload-btn" id="upload-label" for="upload-input" title="Upload a local file to scan on the server">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" style="vertical-align:-2px;margin-right:5px"><path d="M8 11V3M4 6l4-4 4 4"/><path d="M2 13h12"/></svg>
+          <span id="upload-label-text">Upload file</span>
+        </label>
+        <input type="file" id="upload-input" style="display:none" accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.png,.jpg,.jpeg,.zip,.csv,.pptx,.ppt,.md,.json,.xml,.html">
+        <span id="upload-status" class="hint" style="margin-left:8px;display:none"></span>
+      </div>
+
+      <div class="row-2" style="margin-top:16px">
+        <div class="field">
+          <span class="label">Max files</span>
+          <input type="number" id="max-files" min="1" step="100" value="25000">
+        </div>
+        <div class="field">
+          <span class="label">Sample / file</span>
+          <select id="sample-bytes">
+            <option value="262144">256 KB</option>
+            <option value="1048576" selected>1 MB</option>
+            <option value="4194304">4 MB</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="switch" id="dlp-switch" style="margin-top:16px">
+        <input type="checkbox" id="use-dlp">
+        <span>Escalate top findings to Cloud DLP</span>
+      </label>
+      <p class="hint" id="dlp-hint">Local detection always runs. DLP needs a GCP project and bills per request.</p>
+
+      <button class="btn btn-primary" id="run-scan" type="button" style="margin-top:16px">
+        <span id="run-label">Run scan</span>
+      </button>
+    </div>
+
+    <div class="rail-section">
+      <span class="label">Previous runs</span>
+      <div class="runs" id="runs"><p class="empty">No scans yet.</p></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="kpis" id="kpis" hidden></div>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-overview" aria-selected="true" aria-controls="panel-overview">Overview</button>
+      <button class="tab" role="tab" id="tab-dashboard" aria-selected="false" aria-controls="panel-dashboard">Dashboard</button>
+      <button class="tab" role="tab" id="tab-agent" aria-selected="false" aria-controls="panel-agent">Ask the agent</button>
+      <div class="tab-spacer"></div>
+      <div class="tab-actions">
+        <a class="btn btn-ghost" id="dl-report" href="#" hidden>Report&nbsp;.md</a>
+        <a class="btn btn-ghost" id="dl-manifest" href="#" hidden>Manifest&nbsp;.jsonl</a>
+      </div>
+    </nav>
+
+    <section class="panel center-pad" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" data-active="true">
+      <div class="placeholder" id="overview-idle">
+        <h2>Point it at an estate and see what is actually in there.</h2>
+        <p>
+          Document AI parses one document. Vertex AI Search indexes content that is already fit to
+          index. Neither tells you what is sitting on a file share before you commit to migrating it.
+          This does — across the whole estate, in one pass.
+        </p>
+        <ol class="steps-inline">
+          <li><b>Inventory &amp; format health.</b> Every file identified by its magic bytes, not its extension — so renamed, encrypted, corrupt and legacy files surface immediately.</li>
+          <li><b>Deduplication.</b> Exact copies by content hash, and the “FINAL v3 (copy)” near-duplicates by text similarity, with the storage that reclaims.</li>
+          <li><b>Sensitivity.</b> PII, PHI, financial and credential detection, checksum-validated, with optional Cloud DLP escalation on the riskiest files.</li>
+          <li><b>RAG readiness.</b> A score and a disposition per file, plus the Document AI processor each one would need.</li>
+        </ol>
+      </div>
+      <div class="scanlog" id="scanlog" hidden></div>
+    </section>
+
+    <section class="panel" id="panel-dashboard" role="tabpanel" aria-labelledby="tab-dashboard">
+      <iframe id="dashboard-frame" title="Estate triage dashboard"></iframe>
+    </section>
+
+    <section class="panel" id="panel-agent" role="tabpanel" aria-labelledby="tab-agent">
+      <div class="chat">
+        <div class="chat-scroll" id="chat-scroll">
+          <div class="chat-inner" id="chat-inner"></div>
+        </div>
+        <div class="composer">
+          <div class="composer-inner">
+            <textarea id="chat-input" rows="1" placeholder="Ask about the estate — or just say: profile sample_estate"></textarea>
+            <button class="btn btn-primary" id="chat-send" type="button">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

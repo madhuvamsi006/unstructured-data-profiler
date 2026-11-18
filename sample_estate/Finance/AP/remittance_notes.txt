@@ -1,0 +1,6 @@
+Invoice INV-20481 | Purchase order PO-9912 | Remittance advice attached
+Accounts payable contact: ap.team@acme-demo.test | +1 415-555-0142
+Payment card on file: 4111 1111 1111 1111 expiry 09/27 CVV handled separately
+Bank account IBAN GB82WEST12345698765432 | routing 021000021
+VAT registered; GST applied for APAC entities. Balance sheet reference Q3.
+The migration programme covers the consolidation of regional file shares into a single governed repository. Each business unit nominates a data steward responsible for confirming retention classification before any content is moved. Content that cannot be classified within the review window is held in a staging area pending disposition. The migration programme covers the consolidation of regional file shares into a single governed repository. Each business unit nominates a data steward responsible for confirming retention classification before any content is moved. Content that cannot be classified within the review window is held in a staging area pending disposition. The migration programme covers the consolidation of regional file shares into a single governed repository. Each business unit nominates a data steward responsible for confirming retention classification before any content is moved. Content that cannot be classified within the review window is held in a staging area pending disposition. 

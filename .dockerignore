@@ -1,0 +1,21 @@
+# Keep the build context small and keep local config out of the image.
+.env
+.venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Generated locally; the image builds its own.
+sample_estate/
+runs/
+
+# Not needed at runtime.
+tests/
+.git/
+.gitignore
+.claude/
+README.md
+*.md
+!requirements.txt

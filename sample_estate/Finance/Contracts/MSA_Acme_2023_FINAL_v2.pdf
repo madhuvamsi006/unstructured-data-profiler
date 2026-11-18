@@ -1,0 +1,39 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 720 >>
+stream
+BT /F1 12 Tf 72 720 Td 14 TL
+(MASTER SERVICES AGREEMENT) Tj T*
+(This Agreement is entered into by the parties identified below.) Tj T*
+(The party of the first part shall indemnify the other against claims.) Tj T*
+(Governing law: the laws of the State of New York apply to this agreement.) Tj T*
+(Confidentiality agreement provisions survive term and termination.) Tj T*
+(The migration programme covers the consolidation of regional file shares into a single governed repository. Each business unit nominates a data steward responsible for confirming retention classification before any content is moved. Content that cannot be classified within the review window is held in a staging area pending disposition. ) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001012 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1082
+%%EOF
